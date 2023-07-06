@@ -1,0 +1,37 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: pv-webhook-service
+      namespace: kube-system
+      path: /mutate-v1-pod
+      port: 9443
+  failurePolicy: Fail
+  name: mpv.skao.int
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - pods
+  sideEffects: None
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pv-webhook-service
+  namespace: kube-system
+spec:
+  type: ExternalName
+  externalName: 192.168.178.20
